@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>trajectory_smoothing</name>
+  <version>0.0.0</version>
+  <description>The trajectory_smoothing package</description>
+
+
+  <maintainer email="asmarnakis@todo.todo">asmarnakis</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>openpose_ros_msgs</build_depend>
+  <build_depend>openpose_ros_receiver_msgs</build_depend>
+  <build_depend>trajectory_smoothing_msg</build_depend>
+
+  <build_depend>test_pack_msg</build_depend>
+  <build_depend>message_generation</build_depend> 
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>rospy</build_export_depend>
+  <build_export_depend>std_msgs</build_export_depend>
+  
+  <exec_depend>message_runtime</exec_depend> 
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>test_pack_msg</exec_depend>
+  <exec_depend>openpose_ros_msgs</exec_depend>
+  <exec_depend>openpose_ros_receiver_msgs</exec_depend>
+  <exec_depend>trajectory_smoothing_msg</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+
+</package>

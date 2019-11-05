@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+  <node pkg="trajectory_smoothing" type="smooth_server.py" name="smooth_server"/>
+  <node pkg="trajectory_smoothing" type="smoother_node.py" name="smoother_node" output="screen"/>
+</launch>
