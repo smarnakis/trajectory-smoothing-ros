@@ -2,7 +2,7 @@
 import rospy
 
 from trajectory_smoothing.srv import *
-from trajectory_smoothing_msg.msg import OpenPoseReceiverHuman,SmoothRWristCoordsWithRespectToBase
+from trajectory_smoothing_msg.msg import Keypoints_3d_list,SmoothRWristCoordsWithRespectToBase
 import os
 import re
 import math
@@ -70,11 +70,13 @@ def callback(data):
 	global x,y,z,t,smooth,x_smooth,y_smooth,z_smooth,max_speed,i,count,flag,start,lastcall,xde,yde,zde,tde,stop,first_act,allxde,allyde,allzde,alltde,push,stdx,stdy,stdz,allstdx,allstdy,allstdz,restart
 	if (not smooth):
 		
-		tmp_x = data.body_key_points_with_prob[4].x
-		tmp_y = data.body_key_points_with_prob[4].y
-		tmp_z = data.body_key_points_with_prob[4].z
-		tmp_prob = data.body_key_points_with_prob[4].prob
-		seconds = rospy.get_time()
+		for i in range(len(data.keypoints)):
+			if (data.keypoints[i].name == "RWrist"):
+				tmp_x = data.keypoints[i].points.point.x
+				tmp_y = data.keypoints[i].points.point.y
+				tmp_z = data.keypoints[i].points.point.z
+				seconds = rospy.get_time()
+				continue
 
 		#check if listening to points should restart(timeout = 3secs)
 		if seconds - lastcall > 3 or restart:
@@ -196,7 +198,7 @@ def smoother_node():
 	rospy.init_node('smoother_node')
 	#rospy.set_param('robot_frame_coords_msg',"/openpose_ros_receiver/robot_frame_coords_msg")
 	global sub_handler
-	sub_handler = rospy.Subscriber('/openpose_ros_receiver/robot_frame_coords_msg', OpenPoseReceiverHuman, callback)
+	sub_handler = rospy.Subscriber('/openpose_ros_receiver/robot_frame_coords_msg', Keypoints_3d_list, callback)
 	pub = rospy.Publisher('smooth_robot_frame_coords_msg', SmoothRWristCoordsWithRespectToBase, queue_size=1)
 	msg = SmoothRWristCoordsWithRespectToBase()
 	rate = rospy.Rate(10.0)
