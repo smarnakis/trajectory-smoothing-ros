@@ -20,28 +20,41 @@ import collections
 
 from geometry_msgs.msg import Point
 
+#lists that will contain the points for smoothing 
 x, y, z,t, prob = [], [], [], [], []
-smooth = False
-max_speed = 0
-i = -1
-start = 0
-count = 0
-flag = 0
+
+#Queues used as the local and overall lists of the motion-detection-algorithm
 xde = collections.deque([])
 yde = collections.deque([])
 zde = collections.deque([])
 Vde = collections.deque([])
 tde = collections.deque([])
-lastcall = 0
-stop = False
-restart = False
 
-first_act = 0
-push = True
 allxde = collections.deque([])
 allyde = collections.deque([])
 allzde = collections.deque([])
 alltde = collections.deque([])
+
+#the smooth_flag and start_flag of the motion-detection-algorithm
+smooth = False
+start = 0
+count = 0
+
+#flag for pushing previous points when the motion is activated
+push = True
+
+#flags that chech if we havent receiced any points for over 3 sec and reset the *de queues.
+lastcall = 0
+restart = False
+
+
+#useless variable from previous version
+max_speed = 0
+#useless flags, delete them
+flag = 0
+stop = False
+first_act = 0
+#probably useless lists because each time i use only the last point of all the lists
 stdx,stdy,stdz = [],[],[]
 allstdx,allstdy,allstdz = [],[],[]
 
@@ -62,6 +75,8 @@ def callback(data):
 		tmp_z = data.body_key_points_with_prob[4].z
 		tmp_prob = data.body_key_points_with_prob[4].prob
 		seconds = rospy.get_time()
+
+		#check if listening to points should restart(timeout = 3secs)
 		if seconds - lastcall > 3 or restart:
 			if restart:
 				print("Now listening to NEW points...")
@@ -93,7 +108,8 @@ def callback(data):
 			print("Listened to VALID point")
 
 			i += 1
-			if abs(tmp_x) < .6 and abs(tmp_y) < .6 and abs(tmp_z) < .6: 
+			if abs(tmp_x) < .6 and abs(tmp_y) < .6 and abs(tmp_z) < .6:
+				#store points to local and overall lists
 				if len(xde) == 6:
 					xde.pop()
 				if len(yde) == 6:
@@ -102,8 +118,6 @@ def callback(data):
 					zde.pop()
 				if len(tde) == 6:
 					tde.pop()
-				print("t=")
-				print(tde)
 				tde.appendleft(seconds)
 				xde.appendleft(tmp_x)
 				yde.appendleft(tmp_y)
@@ -112,10 +126,10 @@ def callback(data):
 				allxde.appendleft(tmp_x)
 				allyde.appendleft(tmp_y)
 				allzde.appendleft(tmp_z)
-				print("xdeee")
-				print(xde)
-			#rospy.loginfo(seconds)
+
+
 				if len(xde) >= 2:
+
 					stdx.append(np.std(xde))
 					stdy.append(np.std(yde))
 					stdz.append(np.std(zde))
@@ -127,8 +141,9 @@ def callback(data):
 					print("Std Y = %f" %float(stdy[-1]))
 					print("Std Z = %f" %float(stdz[-1]))
 					print("---")
-
+					#check if start_flag should be set
 					if start == 0 and (stdx[-1] > 0.01 or stdy[-1] > 0.01 or stdz[-1] > 0.01):
+						#step 5 of the motion detection algorithm
 						if first_act == 0:
 							first_act = i
 						if stdz[-1] > allstdy[-1] or stdx[-1] > allstdy[-1]:
@@ -143,22 +158,27 @@ def callback(data):
 							print("<========STARTING MOTION========>")
 
 					if start == 1:
+
 						if push == True:
+							#when them start_flag is set for the first time push the previous points
+							#this is done only once
 							for k in range(1,pushback):
 								x.append(allxde[pushback-k-1])
 								y.append(allyde[pushback-k-1])
 								z.append(allzde[pushback-k-1])
 								t.append(alltde[pushback-k-1])
 							push = False
+
+						#append the current point
 						x.append(allxde[0])
 						y.append(allyde[0])
 						z.append(allzde[0])
 						t.append(alltde[0])
+
+						#check the ending condition
 						if stdx[-1] > 0.01 or stdy[-1] > 0.01 or stdz[-1] > 0.01:
-							#if stdx[-1] >= allstdx[-1] or stdy[-1] >= allstdy[-1] or stdz[-1] >= allstdz[-1]:
 							count = 0
 						else:
-							#if max_speed > 0.09:
 							count += 1
 			if count >= 1:
 				lastcall = rospy.get_time()
