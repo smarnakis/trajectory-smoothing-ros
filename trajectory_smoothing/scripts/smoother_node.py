@@ -2,7 +2,7 @@
 import rospy
 
 from trajectory_smoothing.srv import *
-from trajectory_smoothing_msg.msg import Keypoints_3d_list,SmoothRWristCoordsWithRespectToBase
+from trajectory_smoothing_msg.msg import Keypoint3d_list,SmoothRWristCoordsWithRespectToBase
 import os
 import re
 import math
@@ -198,7 +198,7 @@ def smoother_node():
 	rospy.init_node('smoother_node')
 	#rospy.set_param('robot_frame_coords_msg',"/openpose_ros_receiver/robot_frame_coords_msg")
 	global sub_handler
-	sub_handler = rospy.Subscriber('/openpose_ros_receiver/robot_frame_coords_msg', Keypoints_3d_list, callback)
+	sub_handler = rospy.Subscriber('/openpose_ros_receiver/robot_frame_coords_msg', Keypoint3d_list, callback)
 	pub = rospy.Publisher('smooth_robot_frame_coords_msg', SmoothRWristCoordsWithRespectToBase, queue_size=1)
 	msg = SmoothRWristCoordsWithRespectToBase()
 	rate = rospy.Rate(10.0)
